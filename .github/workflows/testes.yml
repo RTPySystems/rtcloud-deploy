@@ -1,0 +1,41 @@
+# CI do repositório da Action: testes no Linux e no Windows e conferência
+# de que o dist/ commitado é o mesmo que o ncc gera a partir de src/.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: O dist/ commitado está em dia com src/
+        if: runner.os == 'Linux'
+        run: |
+          if ! git diff --quiet -- dist/; then
+            echo "::error::O dist/ está desatualizado. Rode npm run build e commite o dist/."
+            git diff --stat -- dist/
+            exit 1
+          fi
+
+      - run: npm test

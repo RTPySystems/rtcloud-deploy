@@ -1,0 +1,51 @@
+name: RTCloud Deploy
+description: Publica uma versão nova da sua aplicação na RTCloud a cada push, pelo Commit da API pública.
+author: RTCloud
+
+branding:
+  icon: upload-cloud
+  color: red
+
+inputs:
+  api-key:
+    description: "Chave da API da RTCloud com acesso total (começa com rtc_). Guarde num secret, como RTCLOUD_API_KEY."
+    required: true
+  app-id:
+    description: Id da aplicação no painel da RTCloud, ou o nome exato dela.
+    required: true
+  path:
+    description: Pasta do projeto que vai no pacote, relativa à raiz do repositório.
+    required: false
+    default: .
+  restart:
+    description: >-
+      Reinício extra depois do commit. auto (padrão) reinicia só se o .env do pacote trouxe variáveis novas;
+      true reinicia sempre; false nunca. O commit em si já reinicia a aplicação.
+    required: false
+    default: auto
+  api-url:
+    description: Endereço da API v1. Deixe em branco — existe para testes.
+    required: false
+    default: https://rtcloud.com.br/api/v1
+
+outputs:
+  app-id:
+    description: Id da aplicação que recebeu a versão.
+  online:
+    description: true se a aplicação já respondeu no ar ao fim do commit; false se ainda estava reiniciando.
+  env-added:
+    description: Quantas variáveis novas o .env do pacote adicionou.
+  restarted:
+    description: true se a Action fez o reinício extra.
+  package-size:
+    description: Tamanho do .zip enviado, em bytes.
+  files:
+    description: Quantos arquivos foram no pacote.
+  dashboard-url:
+    description: Link da aplicação no painel da RTCloud.
+  message:
+    description: Mensagem final (a do servidor em sucesso, o motivo em falha).
+
+runs:
+  using: node24
+  main: dist/index.js

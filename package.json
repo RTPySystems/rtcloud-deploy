@@ -1,0 +1,23 @@
+{
+  "name": "rtcloud-deploy-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action oficial da RTCloud: empacota o projeto e publica uma versão nova pela API pública v1.",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "ncc build src/index.js -o dist --license licenses.txt --no-source-map-register",
+    "test": "node --test --test-concurrency=1 \"test/*.test.js\"",
+    "all": "npm run build && npm test"
+  },
+  "dependencies": {
+    "fflate": "0.8.3",
+    "ignore": "7.0.14"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "0.45.0"
+  }
+}

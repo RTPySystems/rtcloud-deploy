@@ -1,0 +1,5 @@
+# LF em tudo: o dist/ gerado no Windows tem que ser igual ao do Linux
+* text=auto eol=lf
+
+# gerado pelo ncc — fora da contagem de linguagem e do diff das PRs
+dist/** linguist-generated=true -diff

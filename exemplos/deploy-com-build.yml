@@ -1,0 +1,54 @@
+# Build no GitHub e deploy do resultado na RTCloud (ex.: site em Node que gera dist/).
+#
+# O dist/ costuma estar no .gitignore. Para ele subir, crie um .rtcloudignore
+# na raiz do projeto: com ele, a Action segue só as regras dele e o
+# .gitignore deixa de valer. Exemplo de .rtcloudignore:
+#
+#   .env*
+#   *.log
+#   coverage/
+#   # o código-fonte, se o servidor só precisa do dist/:
+#   src/
+#
+# (comentário no .rtcloudignore só no começo da linha, como no .gitignore)
+#
+# node_modules/ e .git/ ficam sempre de fora: a RTCloud instala as
+# dependências do package.json no servidor.
+
+name: Build e deploy na RTCloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rtcloud-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm test --if-present
+      - run: npm run build
+
+      - name: Publicar na RTCloud
+        uses: RTPySystems/rtcloud-deploy@v1
+        with:
+          api-key: ${{ secrets.RTCLOUD_API_KEY }}
+          app-id: ${{ vars.RTCLOUD_APP_ID }}
+          # reinicia sempre, mesmo sem variáveis novas no .env
+          restart: true

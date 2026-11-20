@@ -1,0 +1,44 @@
+# Deploy na RTCloud a cada push na main.
+#
+# Copie para .github/workflows/deploy-rtcloud.yml no seu repositório e crie:
+#   · o secret RTCLOUD_API_KEY  (Settings → Secrets and variables → Actions → Secrets)
+#     com uma chave de API de acesso total (menu da conta → Chaves de API, começa com rtc_);
+#   · a variável RTCLOUD_APP_ID (mesma tela, aba Variables) com o id da aplicação
+#     — ou escreva o id direto em app-id.
+
+name: Deploy na RTCloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# a Action só lê o repositório
+permissions:
+  contents: read
+
+# um deploy por vez; um push novo espera o anterior terminar
+concurrency:
+  group: rtcloud-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Publicar na RTCloud
+        id: rtcloud
+        uses: RTPySystems/rtcloud-deploy@v1
+        with:
+          api-key: ${{ secrets.RTCLOUD_API_KEY }}
+          app-id: ${{ vars.RTCLOUD_APP_ID }}
+
+      - name: Onde ver
+        env:
+          PAINEL: ${{ steps.rtcloud.outputs.dashboard-url }}
+          NO_AR: ${{ steps.rtcloud.outputs.online }}
+        run: |
+          echo "Painel: $PAINEL (no ar: $NO_AR)"

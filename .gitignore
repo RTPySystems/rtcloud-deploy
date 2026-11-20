@@ -1,0 +1,6 @@
+# o dist/ VAI para o repositório: é ele que o GitHub executa
+node_modules/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
